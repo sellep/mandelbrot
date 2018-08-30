@@ -33,18 +33,6 @@ namespace MB.Core
             throw new Exception($"Protocol {address.Split(':')[0]} not supported");
         }
 
-        /*public static ServiceEndpoint CreateEndpoint(this ServiceHost serviceHost, Type contract, Uri baseAddress)
-        {
-            ServiceEndpoint endpoint = serviceHost.AddServiceEndpoint(
-                contract,
-                CreateBinding(baseAddress),
-                new Uri(baseAddress, contract.Name));
-
-            endpoint.AddDataContractResolver();
-
-            return endpoint;
-        }*/
-
         public static void AddDataContractResolver(this ServiceEndpoint serviceEndpoint)
         {
             foreach (OperationDescription operation in serviceEndpoint.Contract.Operations)

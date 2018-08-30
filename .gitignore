@@ -1,6 +1,8 @@
-obj/
-lib/
-bin/
+**/obj/
+**/lib/
+**/bin/
+.vs/
+**/packages/*
 
 # Prerequisites
 *.d
