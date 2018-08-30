@@ -15,7 +15,7 @@ namespace MB.Core
 
         public static Binding CreateBinding(Uri baseAddress)
         {
-            const string _PROTOCOL_PIPE = "net.pipe://";
+            //const string _PROTOCOL_PIPE = "net.pipe://";
             const string _PROTOCOL_TCP = "net.tcp://";
 
             string address = baseAddress.ToString().ToLower();

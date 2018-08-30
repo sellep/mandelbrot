@@ -67,8 +67,8 @@ namespace Temp
 		
 		private static void RunTest()
 		{
-			const int width = 1;
-			const int height = 1;
+			const int width = 10;
+			const int height = 10;
 			const uint limit = 1000000;
 			const int row = 0;
 			const int col = 0;
