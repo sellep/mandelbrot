@@ -1,0 +1,19 @@
+#!/bin/bash
+
+ADDRESS="net.tcp://localhost/mb/"
+REGEX='^[0-9]+$'
+
+if [[ "$#" -ne 1 ]] ; then
+	echo "missing number of clients" >&2
+	echo "example: ./run 4" >&2
+	exit 1
+fi
+
+if ! [[ "$1" =~ $REGEX ]] ; then
+	echo "argument not a number" >&2
+	exit 1
+fi
+
+for (( i = 1; i <= $1; i++ )) ; do
+	eval 'LD_PRELOAD="libmpfr.so" dotnet run --project MB.MPFR/ id=$i address=$ADDRESS &> log.$i &'
+done
