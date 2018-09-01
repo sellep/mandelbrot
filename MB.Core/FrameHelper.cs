@@ -27,16 +27,16 @@ namespace MB.Core
 
         public static void MapTo(ComputationRequest request, int[,] frame, int[,] partial)
         {
-            for (int y = 0; y < request.Height; y++)
+            for (int y = 0; y < request.PartialHeight; y++)
             {
-                for (int x = 0; x < request.Width; x++)
+                for (int x = 0; x < request.PartialWidth; x++)
                 {
-                    frame[request.Col * request.Width + x, request.Row * request.Height + y] = partial[x, y];
+                    frame[request.Col * request.PartialWidth + x, request.Row * request.PartialHeight + y] = partial[x, y];
                 }
             }
         }
 
-        public static int[,] ToMulti(int width, int height, int[] iframe)
+        public static int[,] ToMulti(int[] iframe, int width, int height)
         {
             int[,] result = new int[width, height];
 

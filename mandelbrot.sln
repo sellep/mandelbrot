@@ -9,6 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MB.MPFR", "MB.MPFR\MB.MPFR.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MB.Core", "MB.Core\MB.Core.csproj", "{E28DF680-D0FD-4E6A-B942-7FA4F6942AFF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C26A9555-0DC8-46E2-9BEC-3ADA93879E4A}"
+	ProjectSection(SolutionItems) = preProject
+		mbmpfr\mbmpfr.c = mbmpfr\mbmpfr.c
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

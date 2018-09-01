@@ -8,17 +8,19 @@ namespace MB.Core
     public class ComputationRequest
     {
 
-        public ComputationRequest(Complex min, Complex step, int width, int height, uint limit, int row, int col)
+        public ComputationRequest(Complex min, Complex max, int width, int height, int partialWidth, int partialHeight, uint limit, int row, int col)
         {
             Id = Guid.NewGuid();
 
             RMin = min.RValue;
             IMin = min.IValue;
-            RStep = step.RValue;
-            IStep = step.IValue;
+            RMax = max.RValue;
+            IMax = max.IValue;
 
             Width = width;
             Height = height;
+            PartialWidth = partialWidth;
+            PartialHeight = partialHeight;
             Limit = limit;
             Row = row;
             Col = col;
@@ -30,20 +32,22 @@ namespace MB.Core
 
         public string IMin { get; }
 
-        public string RStep { get; }
+        public string RMax { get; }
 
-        public string IStep { get; }
+        public string IMax { get; }
 
         public int Width { get; }
 
         public int Height { get; }
 
+        public int PartialWidth { get; }
+
+        public int PartialHeight { get; }
+
         public uint Limit { get; }
 
-        [IgnoreDataMember]
         public int Row { get; }
 
-        [IgnoreDataMember]
         public int Col { get; }
     }
 }

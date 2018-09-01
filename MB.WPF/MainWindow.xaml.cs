@@ -33,14 +33,16 @@ namespace MB.WPF
         private Point? _Start;
         private Rectangle _Rect = new Rectangle();
 
+        private Project _Proj = null;
         private ComputationProvider _Provider;
-        private ComputationPackage _Package = null;
 
         public MainWindow()
         {
             InitializeComponent();
 
             _Brushes = ColorInterpolator.CreatePalette(100, Colors.Black, Colors.Black, 1000).Select(c => new SolidColorBrush(c)).ToArray();
+            _Proj = Project.Initialize(_WIDTH, _HEIGHT, (uint)_Brushes.Length - 1, _PACKAGES_PER_FRAME, _BoundsMin, _BoundsMax);
+            _Proj.FrameChanged += _Project_FrameChanged;
 
             MouseLeftButtonDown += MainWindow_MouseLeftButtonDown;
             MouseLeftButtonUp += MainWindow_MouseLeftButtonUp;
@@ -49,31 +51,12 @@ namespace MB.WPF
             _Rect.Opacity = 0.4;
             _Rect.Fill = Brushes.Red;
 
-            _Provider = new ComputationProvider(new Uri("net.tcp://localhost/mb/"));
-
-            ApplyPackage();
+            _Provider = new ComputationProvider(new Uri("net.tcp://localhost/mb/"), _Proj);
         }
 
-        private void ApplyPackage()
+        private void _Project_FrameChanged(object sender, EventArgs e)
         {
-            if (_Package != null)
-            {
-                _Package.FrameChanged += Package_FrameChanged;
-            }
-
-            IEnumerable<ComputationRequest> requests = DoubleComputationFactory.CreateRequests(_BoundsMin, _BoundsMax, _WIDTH, _HEIGHT, (uint)(_Brushes.Length - 1), _PACKAGES_PER_FRAME);
-
-            _Package = new ComputationPackage(requests, _WIDTH, _HEIGHT);
-            _Package.FrameChanged += Package_FrameChanged;
-
-            _Provider.Apply(_Package);
-
-            _Out.ImageSource = BitmapHelper.Create(_Package.Width, _Package.Height, _Package.Frame, _Brushes, Brushes.WhiteSmoke);
-        }
-
-        private void Package_FrameChanged(object sender, EventArgs e)
-        {
-            _Out.ImageSource = BitmapHelper.Create(_Package.Width, _Package.Height, _Package.Frame, _Brushes, Brushes.WhiteSmoke);
+            _Out.ImageSource = BitmapHelper.Create(_Proj.Width, _Proj.Height, _Proj.Current.Frame, _Brushes, Brushes.WhiteSmoke);
         }
 
         private void MainWindow_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -99,7 +82,7 @@ namespace MB.WPF
                 _BoundsMin.R + logical_dim.R * width_ratio,
                 _BoundsMin.I + logical_dim.I * height_ratio);
 
-            ApplyPackage();
+            // here must call project create frame
 
             _Cnvs.Children.Clear();
             _Start = null;

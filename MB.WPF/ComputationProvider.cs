@@ -15,10 +15,12 @@ namespace MB.WPF
     {
         private ServiceHost _Host;
 
-        private ComputationPackage _Package = null;
+        private Project _Proj;
 
-        public ComputationProvider(Uri address)
+        public ComputationProvider(Uri address, Project proj)
         {
+            _Proj = proj;
+
             _Host = new ServiceHost(this);
             CreateEndpoint(_Host, typeof(IContract), address);
             _Host.Open();
@@ -34,10 +36,6 @@ namespace MB.WPF
             endpoint.AddDataContractResolver();
         }
 
-        public void Apply(ComputationPackage package)
-        {
-            _Package = package;
-        }
 
         public void Dispose()
         {
@@ -46,15 +44,15 @@ namespace MB.WPF
 
         public void Finish(Guid id, int[] iframe)
         {
-            _Package.Finish(id, iframe);
+            _Proj.Finish(id, iframe);
         }
 
         public ComputationRequest Request()
         {
-            if (_Package == null)
+            if (_Proj.Current == null)
                 return null;
 
-            return _Package.Next();
+            return _Proj.Current.Next();
         }
     }
 }

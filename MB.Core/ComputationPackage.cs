@@ -13,11 +13,21 @@ namespace MB.Core
         private List<ComputationRequest> _Pending = new List<ComputationRequest>();
         private List<ComputationRequest> _Done = new List<ComputationRequest>();
 
-        public event EventHandler FrameChanged;
-
-        public ComputationPackage(IEnumerable<ComputationRequest> requests, int width, int height)
+        public ComputationPackage(Complex min, Complex max, int width, int height, uint limit, int threads)
         {
-            _Available.AddRange(requests);
+            MakeGrid(width, height, threads, out int rows, out int cols);
+
+            int partialWidth = width / cols;
+            int partialHeight = height / rows;
+
+            for (int r = 0; r < rows; r++)
+            {
+                for (int c = 0; c < cols; c++)
+                {
+                    ComputationRequest request = new ComputationRequest(min, max, width, height, partialWidth, partialHeight, limit, r, c);
+                    _Available.Add(request);
+                }
+            }
 
             Width = width;
             Height = height;
@@ -31,22 +41,22 @@ namespace MB.Core
 
         public int[,] Frame { get; }
 
-        public void Finish(Guid id, int[] iframe)
+        public ComputationRequest Finish(Guid id, int[] iframe)
         {
             lock (_Sync)
             {
                 ComputationRequest request = _Pending.FirstOrDefault(r => r.Id == id);
                 if (request == null)
-                    return;
+                    return null;
 
                 _Pending.Remove(request);
                 _Done.Add(request);
 
-                int[,] partial = FrameHelper.ToMulti(request.Width, request.Height, iframe);
+                int[,] partial = FrameHelper.ToMulti(iframe, request.PartialWidth, request.PartialHeight);
                 FrameHelper.MapTo(request, Frame, partial);
-            }
 
-            FrameChanged?.Invoke(this, new EventArgs());
+                return request;
+            }
         }
 
         public ComputationRequest Next()
@@ -61,6 +71,27 @@ namespace MB.Core
                 _Pending.Add(request);
 
                 return request;
+            }
+        }
+
+        private static void MakeGrid(int width, int height, int threads, out int rows, out int cols)
+        {
+            cols = (int)Math.Sqrt(threads);
+            rows = threads / cols;
+
+            if (rows * cols < threads)
+            {
+                rows++;
+            }
+
+            while (width % cols != 0 && height % rows != 0)
+            {
+                cols--;
+
+                while (rows * cols < threads)
+                {
+                    rows++;
+                }
             }
         }
     }
