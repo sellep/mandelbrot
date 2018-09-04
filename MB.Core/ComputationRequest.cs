@@ -8,7 +8,7 @@ namespace MB.Core
     public class ComputationRequest
     {
 
-        public ComputationRequest(Complex min, Complex max, int width, int height, int partialWidth, int partialHeight, uint limit, int col, int row, ComputationType type = ComputationType.Render)
+        public ComputationRequest(Complex min, Complex max, int width, int height, int partialWidth, int partialHeight, uint limit, int col, int row, ComputationType type)
         {
             Id = Guid.NewGuid();
             Type = type;

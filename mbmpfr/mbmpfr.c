@@ -122,8 +122,8 @@ void zoom(
 	mpfr_mul_d(new_r_max, r_dim, width_ratio, MPFR_RNDN);
 	mpfr_mul_d(new_i_max, i_dim, height_ratio, MPFR_RNDN);
 
-	mpfr_add(new_r_max, r_min, new_r_max, MPFR_RNDN);
-	mpfr_add(new_i_max, i_min, new_i_max, MPFR_RNDN);
+	mpfr_add(new_r_max, new_r_min, new_r_max, MPFR_RNDN);
+	mpfr_add(new_i_max, new_i_min, new_i_max, MPFR_RNDN);
 
 	to_str(str + 0 * str_length, str_length, new_r_min);
 	to_str(str + 1 * str_length, str_length, new_i_min);

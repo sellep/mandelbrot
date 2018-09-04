@@ -95,7 +95,7 @@ namespace MB.Core
                     }
                     else
                     {
-                        ComputationRequest request = new ComputationRequest(bounds.Item1, bounds.Item2, proj.Width, proj.Height, proj.PartialWidth, proj.PartialHeight, proj.Limit, col, row);
+                        ComputationRequest request = new ComputationRequest(bounds.Item1, bounds.Item2, proj.Width, proj.Height, proj.PartialWidth, proj.PartialHeight, proj.Limit, col, row, ComputationType.Render);
                         proj._Package.AddRequest(request);
                     }
                 }
@@ -181,7 +181,7 @@ namespace MB.Core
         {
             lock (_Sync)
             {
-                _ZoomRequest = new ComputationRequest(_Package.Min, _Package.Max, Width, Height, zoomWidth, zoomHeight, _NUMBER_LENGTH, offsetX, offsetY);
+                _ZoomRequest = new ComputationRequest(_Package.Min, _Package.Max, Width, Height, zoomWidth, zoomHeight, _NUMBER_LENGTH, offsetX, offsetY, ComputationType.Zoom);
 
                 _Package = null;
             }

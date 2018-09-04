@@ -22,7 +22,7 @@ namespace MB.Core
             {
                 for (int c = 0; c < cols; c++)
                 {
-                    ComputationRequest request = new ComputationRequest(min, max, width, height, partialWidth, partialHeight, limit, r, c);
+                    ComputationRequest request = new ComputationRequest(min, max, width, height, partialWidth, partialHeight, limit, c, r, ComputationType.Render);
                     _Available.Add(request);
                 }
             }

@@ -24,6 +24,26 @@ namespace Temp
 
         public static void Main(string[] args)
         {
+            //ComputationRequest req = new ComputationRequest(
+            //    new Complex("-2", "-1.5"),
+            //    new Complex("1", "1.5"),
+            //    2000,
+            //    1000,
+            //    300,
+            //    200,
+            //    5,
+            //    1300,
+            //    500,
+            //    ComputationType.Zoom);
+
+            //string[] bounds = InvokeZoom(req);
+
+            //Console.WriteLine(bounds[0]);
+            //Console.WriteLine(bounds[1]);
+            //Console.WriteLine(bounds[2]);
+            //Console.WriteLine(bounds[3]);
+            //return;
+
             TimeSpan sleep = TimeSpan.FromSeconds(10);
 
             ParseArguments(args, out bool test, out int id, out Uri address);
@@ -92,7 +112,7 @@ namespace Temp
             DoubleComplex min = new DoubleComplex(-2, -1.5);
             DoubleComplex max = new DoubleComplex(1, 1.5);
 
-            ComputationRequest request = new ComputationRequest(min, max, width, height, partialWidth, partialHeight, limit, row, col);
+            ComputationRequest request = new ComputationRequest(min, max, width, height, partialWidth, partialHeight, limit, row, col, ComputationType.Render);
 
             DateTime begin = DateTime.Now;
             int[] iframe = InvokeCompute(request);
@@ -127,7 +147,7 @@ namespace Temp
             while (true)
             {
                 ComputationRequest request = Request(address, sleep);
-                Console.Write($"{id}: [{request.Id}({request.Type})]");
+                Console.Write($"{id}({request.Type}): [{request.Id}({request.Type})]");
 
 
                 if (request.Type == ComputationType.Render)

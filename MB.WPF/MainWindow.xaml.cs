@@ -43,6 +43,7 @@ namespace MB.WPF
 
             _Brushes = ColorInterpolator.CreatePalette(100, Colors.Black, Colors.Black, 1000).Select(c => new SolidColorBrush(c)).ToArray();
             _Proj = Project.Initialize(_WIDTH, _HEIGHT, (uint)_Brushes.Length - 1, _PACKAGES_PER_FRAME, _BoundsMin, _BoundsMax);
+            _Proj.FrameFinished += _Project_FrameFinished;
             _Proj.FrameChanged += _Project_FrameChanged;
 
             MouseLeftButtonDown += MainWindow_MouseLeftButtonDown;
