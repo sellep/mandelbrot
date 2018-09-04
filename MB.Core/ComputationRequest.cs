@@ -8,9 +8,10 @@ namespace MB.Core
     public class ComputationRequest
     {
 
-        public ComputationRequest(Complex min, Complex max, int width, int height, int partialWidth, int partialHeight, uint limit, int row, int col)
+        public ComputationRequest(Complex min, Complex max, int width, int height, int partialWidth, int partialHeight, uint limit, int col, int row, ComputationType type = ComputationType.Render)
         {
             Id = Guid.NewGuid();
+            Type = type;
 
             RMin = min.RValue;
             IMin = min.IValue;
@@ -27,6 +28,8 @@ namespace MB.Core
         }
 
         public Guid Id { get; }
+
+        public ComputationType Type { get; }
 
         public string RMin { get; }
 

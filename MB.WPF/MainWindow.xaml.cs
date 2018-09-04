@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,9 +22,9 @@ namespace MB.WPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const int _WIDTH = 1920;
-        private const int _HEIGHT = 1080;
-        private const int _PACKAGES_PER_FRAME = 10000;
+        private const int _WIDTH = 840;
+        private const int _HEIGHT = 680;
+        private const int _PACKAGES_PER_FRAME = 500;
 
         private SolidColorBrush[] _Brushes;
 
@@ -51,12 +52,27 @@ namespace MB.WPF
             _Rect.Opacity = 0.4;
             _Rect.Fill = Brushes.Red;
 
+            _Project_FrameChanged(null, new EventArgs());
+
             _Provider = new ComputationProvider(new Uri("net.tcp://localhost/mb/"), _Proj);
+        }
+
+        private void _Project_FrameFinished(object sender, int[,] iframe)
+        {
+            _Project_FrameChanged(sender, new EventArgs());
+
+            PngBitmapEncoder encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create((BitmapSource)_Out.ImageSource));
+
+            using (Stream s = File.OpenWrite(_Proj.GetCurrentBitmapPath()))
+            {
+                encoder.Save(s);
+            }
         }
 
         private void _Project_FrameChanged(object sender, EventArgs e)
         {
-            _Out.ImageSource = BitmapHelper.Create(_Proj.Width, _Proj.Height, _Proj.Current.Frame, _Brushes, Brushes.WhiteSmoke);
+            _Out.ImageSource = BitmapHelper.Create(_Proj.Width, _Proj.Height, _Proj.CurrentFrame, _Brushes, Brushes.WhiteSmoke);
         }
 
         private void MainWindow_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -66,23 +82,16 @@ namespace MB.WPF
 
             Point current = e.GetPosition(_Cnvs);
 
-            double x_min_ratio = _Start.Value.X / _Cnvs.ActualWidth;
-            double y_min_ratio = _Start.Value.Y / _Cnvs.ActualHeight;
-
-            double width_ratio = (current.X - _Start.Value.X) / _Cnvs.ActualWidth;
-            double height_ratio = (current.Y - _Start.Value.Y) / _Cnvs.ActualHeight;
-
-            DoubleComplex logical_dim = _BoundsMax - _BoundsMin;
-
-            _BoundsMin = new DoubleComplex(
-                _BoundsMin.R + x_min_ratio * logical_dim.R,
-                _BoundsMin.I + y_min_ratio * logical_dim.I);
-
-            _BoundsMax = new DoubleComplex(
-                _BoundsMin.R + logical_dim.R * width_ratio,
-                _BoundsMin.I + logical_dim.I * height_ratio);
+            double widthRatio = _WIDTH / _Cnvs.ActualWidth;
+            double heightRatio = _HEIGHT / _Cnvs.ActualHeight;
 
             // here must call project create frame
+            int zoomWidth = (int)(widthRatio * (current.X - _Start.Value.X));
+            int zoomHeight = (int)(heightRatio * (current.Y - _Start.Value.Y));
+            int offsetX = (int)(widthRatio * _Start.Value.X);
+            int offsetY = (int)(heightRatio * _Start.Value.Y);
+
+            _Proj.SetZoomRequest(zoomWidth, zoomHeight, offsetX, offsetY);
 
             _Cnvs.Children.Clear();
             _Start = null;

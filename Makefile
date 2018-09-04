@@ -7,8 +7,6 @@ all: clean
 	$(CC) -c $(CFLAGS) -o mbmpfr/obj/mbmpfr.o mbmpfr/mbmpfr.c
 	$(CC) -shared -o mbmpfr/lib/libmbmpfr.so mbmpfr/obj/mbmpfr.o
 
-	@dotnet build MB.MPFR/
-
 clean:
 	@rm -rf mbmpfr/obj/* mbmpfr/lib/*
 

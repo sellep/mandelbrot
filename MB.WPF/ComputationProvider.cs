@@ -47,12 +47,17 @@ namespace MB.WPF
             _Proj.Finish(id, iframe);
         }
 
+        public void FinishZoom(Guid id, string[] bounds)
+        {
+            Complex min = new Complex(bounds[0], bounds[1]);
+            Complex max = new Complex(bounds[2], bounds[3]);
+
+            _Proj.CreateFrame(min, max);
+        }
+
         public ComputationRequest Request()
         {
-            if (_Proj.Current == null)
-                return null;
-
-            return _Proj.Current.Next();
+            return _Proj.Request();
         }
     }
 }

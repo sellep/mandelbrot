@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace MB.Core
@@ -13,13 +15,9 @@ namespace MB.Core
         private List<ComputationRequest> _Pending = new List<ComputationRequest>();
         private List<ComputationRequest> _Done = new List<ComputationRequest>();
 
-        public ComputationPackage(Complex min, Complex max, int width, int height, uint limit, int threads)
+        public ComputationPackage(Complex min, Complex max, int width, int height, int partialWidth, int partialHeight, uint limit, int cols, int rows, int threads)
+            : this(min, max, width, height)
         {
-            MakeGrid(width, height, threads, out int rows, out int cols);
-
-            int partialWidth = width / cols;
-            int partialHeight = height / rows;
-
             for (int r = 0; r < rows; r++)
             {
                 for (int c = 0; c < cols; c++)
@@ -28,9 +26,14 @@ namespace MB.Core
                     _Available.Add(request);
                 }
             }
+        }
 
+        public ComputationPackage(Complex min, Complex max, int width, int height)
+        {
             Width = width;
             Height = height;
+            Min = min;
+            Max = max;
 
             Frame = FrameHelper.Initialize(width, Height);
         }
@@ -40,6 +43,17 @@ namespace MB.Core
         public int Height { get; }
 
         public int[,] Frame { get; }
+
+        public Complex Min { get; }
+
+        public Complex Max { get; }
+
+        public bool IsDone => _Available.Count == 0 && _Pending.Count == 0;
+
+        public void AddRequest(ComputationRequest request)
+        {
+            _Available.Add(request);
+        }
 
         public ComputationRequest Finish(Guid id, int[] iframe)
         {
@@ -52,11 +66,16 @@ namespace MB.Core
                 _Pending.Remove(request);
                 _Done.Add(request);
 
-                int[,] partial = FrameHelper.ToMulti(iframe, request.PartialWidth, request.PartialHeight);
-                FrameHelper.MapTo(request, Frame, partial);
+                MapPartialFrame(iframe, request.PartialWidth, request.PartialHeight, request.Col, request.Row);
 
                 return request;
             }
+        }
+
+        public void MapPartialFrame(int[] partialFrame, int partialWidth, int partialHeight, int col, int row)
+        {
+            int[,] partial = FrameHelper.ToMulti(partialFrame, partialWidth, partialHeight);
+            FrameHelper.MapTo(partialWidth, partialHeight, col, row, Frame, partial);
         }
 
         public ComputationRequest Next()
@@ -71,27 +90,6 @@ namespace MB.Core
                 _Pending.Add(request);
 
                 return request;
-            }
-        }
-
-        private static void MakeGrid(int width, int height, int threads, out int rows, out int cols)
-        {
-            cols = (int)Math.Sqrt(threads);
-            rows = threads / cols;
-
-            if (rows * cols < threads)
-            {
-                rows++;
-            }
-
-            while (width % cols != 0 && height % rows != 0)
-            {
-                cols--;
-
-                while (rows * cols < threads)
-                {
-                    rows++;
-                }
             }
         }
     }

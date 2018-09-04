@@ -5,7 +5,7 @@ using System.Text;
 namespace MB.Core
 {
 
-    public abstract class Complex
+    public class Complex
     {
 
         public Complex(string rValue, string iValue)

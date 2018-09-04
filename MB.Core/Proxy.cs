@@ -20,6 +20,11 @@ namespace MB.Core
             Channel.Finish(id, iframe);
         }
 
+        public void FinishZoom(Guid id, string[] bounds)
+        {
+            Channel.FinishZoom(id, bounds);
+        }
+
         public ComputationRequest Request()
         {
             return Channel.Request();

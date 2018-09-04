@@ -25,13 +25,13 @@ namespace MB.Core
             return iframe;
         }
 
-        public static void MapTo(ComputationRequest request, int[,] frame, int[,] partial)
+        public static void MapTo(int partialWidth, int partialHeight, int col, int row, int[,] frame, int[,] partial)
         {
-            for (int y = 0; y < request.PartialHeight; y++)
+            for (int y = 0; y < partialHeight; y++)
             {
-                for (int x = 0; x < request.PartialWidth; x++)
+                for (int x = 0; x < partialWidth; x++)
                 {
-                    frame[request.Col * request.PartialWidth + x, request.Row * request.PartialHeight + y] = partial[x, y];
+                    frame[col * partialWidth + x, row * partialHeight + y] = partial[x, y];
                 }
             }
         }
@@ -64,6 +64,27 @@ namespace MB.Core
             }
 
             return result;
+        }
+
+        public static void MakeGrid(int width, int height, int threads, out int rows, out int cols)
+        {
+            cols = (int)Math.Sqrt(threads);
+            rows = threads / cols;
+
+            if (rows * cols < threads)
+            {
+                rows++;
+            }
+
+            while (width % cols != 0 && height % rows != 0)
+            {
+                cols--;
+
+                while (rows * cols < threads)
+                {
+                    rows++;
+                }
+            }
         }
     }
 }
