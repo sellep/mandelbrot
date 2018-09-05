@@ -66,24 +66,20 @@ namespace MB.Core
             return result;
         }
 
-        public static void MakeGrid(int width, int height, int threads, out int rows, out int cols)
+        public static void MakeGrid(int width, int height, int threads, out int cols, out int rows)
         {
-            cols = (int)Math.Sqrt(threads);
-            rows = threads / cols;
+            cols = (int)Math.Sqrt(threads) + 1;
 
-            if (rows * cols < threads)
-            {
-                rows++;
-            }
-
-            while (width % cols != 0 && height % rows != 0)
+            while (width % cols != 0)
             {
                 cols--;
+            }
 
-                while (rows * cols < threads)
-                {
-                    rows++;
-                }
+            rows = threads / cols;
+
+            while (height % rows != 0)
+            {
+                rows++;
             }
         }
     }

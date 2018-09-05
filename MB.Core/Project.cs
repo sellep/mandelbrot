@@ -12,7 +12,7 @@ namespace MB.Core
 
     public class Project
     {
-        private const uint _NUMBER_LENGTH = 10;
+        private const uint _NUMBER_LENGTH = 30;
 
         private readonly object _Sync = new object();
         private int _FrameCount = -1;
@@ -35,7 +35,7 @@ namespace MB.Core
         {
             EnsureBasePath();
 
-            FrameHelper.MakeGrid(width, height, threads, out int rows, out int cols);
+            FrameHelper.MakeGrid(width, height, threads, out int cols, out int rows);
 
             Project proj = new Project()
             {

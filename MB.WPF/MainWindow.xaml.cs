@@ -22,14 +22,14 @@ namespace MB.WPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const int _WIDTH = 840;
-        private const int _HEIGHT = 680;
-        private const int _PACKAGES_PER_FRAME = 500;
+        private const int _WIDTH = 1920;
+        private const int _HEIGHT = 1080;
+        private const int _PACKAGES_PER_FRAME = 2000;
 
         private SolidColorBrush[] _Brushes;
 
-        DoubleComplex _BoundsMin = new DoubleComplex(-2, -1.5);
-        DoubleComplex _BoundsMax = new DoubleComplex(0.5, 1.5);
+        private Complex _BoundsMin = new Complex("-2", "-1.5");
+        private Complex _BoundsMax = new Complex("0.5", "1.5");
 
         private Point? _Start;
         private Rectangle _Rect = new Rectangle();
@@ -41,7 +41,7 @@ namespace MB.WPF
         {
             InitializeComponent();
 
-            _Brushes = ColorInterpolator.CreatePalette(100, Colors.Black, Colors.Black, 1000).Select(c => new SolidColorBrush(c)).ToArray();
+            _Brushes = ColorInterpolator.CreatePalette(100, Colors.Black, Colors.Black, 10000).Select(c => new SolidColorBrush(c)).ToArray();
             _Proj = Project.Initialize(_WIDTH, _HEIGHT, (uint)_Brushes.Length - 1, _PACKAGES_PER_FRAME, _BoundsMin, _BoundsMax);
             _Proj.FrameFinished += _Project_FrameFinished;
             _Proj.FrameChanged += _Project_FrameChanged;

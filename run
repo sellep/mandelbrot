@@ -17,5 +17,5 @@ fi
 dotnet build MB.MPFR
 
 for (( i = 1; i <= $1; i++ )) ; do
-	eval 'LD_PRELOAD="libmpfr.so" dotnet MB.MPFR/bin/Debug/netcoreapp2.1/MB.MPFR.dll id=$i address=$ADDRESS &> log.$i &'
+	eval 'LD_PRELOAD="libmpfr.so" dotnet MB.MPFR/bin/Debug/netcoreapp2.1/MB.MPFR.dll id=$i address=$ADDRESS &> /dev/null &'
 done
