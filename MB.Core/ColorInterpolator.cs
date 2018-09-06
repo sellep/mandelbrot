@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
 
-namespace MB.WPF
+namespace MB.Core
 {
 
     public class ColorInterpolator
@@ -18,7 +16,7 @@ namespace MB.WPF
 
             bias.Add(begin);
 
-            PropertyInfo[] props = typeof(Colors).GetProperties(BindingFlags.Public | BindingFlags.Static);
+            PropertyInfo[] props = typeof(Color).GetProperties(BindingFlags.Public | BindingFlags.Static);
 
             for (int i = 0; i < betweenRandColors; i++)
             {
@@ -54,7 +52,7 @@ namespace MB.WPF
 
             for (int i = 0; i < steps; i++)
             {
-                map[startIndex + i] = Color.FromRgb((byte)r_cur, (byte)g_cur, (byte)b_cur);
+                map[startIndex + i] = Color.FromArgb((byte)r_cur, (byte)g_cur, (byte)b_cur);
 
                 r_cur += r_diff;
                 g_cur += g_diff;

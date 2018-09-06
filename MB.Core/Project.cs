@@ -6,13 +6,14 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Drawing;
 
 namespace MB.Core
 {
 
     public class Project
     {
-        private const uint _NUMBER_LENGTH = 30;
+        private const uint _NUMBER_LENGTH = 128;
 
         private readonly object _Sync = new object();
         private int _FrameCount = -1;
@@ -23,25 +24,24 @@ namespace MB.Core
         public event EventHandler FrameChanged;
         public event EventHandler<int[,]> FrameFinished;
 
-        public static Project Initialize(int width, int height, uint limit, int threads, Complex min, Complex max)
-        {
-            if (File.Exists(GetProjectFile()))
-                return Load();
-
-            return New(width, height, limit, threads, min, max);
-        }
-
-        private static Project New(int width, int height, uint limit, int threads, Complex min, Complex max)
+        public static Project Initialize(int width, int height, int threads, Complex min, Complex max)
         {
             EnsureBasePath();
 
+            if (File.Exists(GetProjectFile()))
+                return Load();
+
+            return New(width, height, threads, min, max);
+        }
+
+        private static Project New(int width, int height, int threads, Complex min, Complex max)
+        {
             FrameHelper.MakeGrid(width, height, threads, out int cols, out int rows);
 
             Project proj = new Project()
             {
                 Width = width,
                 Height = height,
-                Limit = limit,
                 Threads = threads,
                 PartialWidth = width / cols,
                 PartialHeight = height / rows,
@@ -52,6 +52,8 @@ namespace MB.Core
             string json = JsonConvert.SerializeObject(proj);
             File.WriteAllText(GetProjectFile(), json);
 
+            proj.Palette = InitializePalette();
+
             proj.CreateFrame(min, max);
 
             return proj;
@@ -61,6 +63,8 @@ namespace MB.Core
         {
             string json = File.ReadAllText(GetProjectFile());
             Project proj = JsonConvert.DeserializeObject<Project>(json);
+
+            proj.Palette = InitializePalette();
 
             int latestFrame = Directory
                 .GetDirectories(GetBasePath())
@@ -95,13 +99,37 @@ namespace MB.Core
                     }
                     else
                     {
-                        ComputationRequest request = new ComputationRequest(bounds.Item1, bounds.Item2, proj.Width, proj.Height, proj.PartialWidth, proj.PartialHeight, proj.Limit, col, row, ComputationType.Render);
+                        ComputationRequest request = new ComputationRequest(bounds.Item1, bounds.Item2, proj.Width, proj.Height, proj.PartialWidth, proj.PartialHeight, (uint)proj.Palette.Length - 1, col, row, ComputationType.Render);
                         proj._Package.AddRequest(request);
                     }
                 }
             }
 
             return proj;
+        }
+
+        private static Color[] InitializePalette()
+        {
+            string paletteBinPath = GetPaletteBinPath();
+
+            BinaryFormatter formatter = new BinaryFormatter();
+
+            if (File.Exists(paletteBinPath))
+            {
+                using (Stream s = File.OpenRead(paletteBinPath))
+                {
+                    return (Color[])formatter.Deserialize(s);
+                }
+            }
+
+            Color[] palette = ColorInterpolator.CreatePalette(20, Color.Black, Color.Black, 50000).ToArray();
+
+            using (Stream s = File.OpenWrite(paletteBinPath))
+            {
+                formatter.Serialize(s, palette);
+            }
+
+            return palette;
         }
 
         [JsonProperty]
@@ -117,9 +145,6 @@ namespace MB.Core
         public int PartialHeight { get; private set; }
 
         [JsonProperty]
-        public uint Limit { get; private set; }
-
-        [JsonProperty]
         public int Threads { get; private set; }
 
         [JsonProperty]
@@ -127,6 +152,9 @@ namespace MB.Core
 
         [JsonProperty]
         public int Rows { get; private set; }
+
+        [JsonIgnore]
+        public Color[] Palette { get; private set; }
 
         [JsonIgnore]
         public int[,] CurrentFrame => _Package.Frame;
@@ -202,7 +230,7 @@ namespace MB.Core
                 path = Path.Combine(path, "_bounds.json");
                 File.WriteAllText(path, json);
 
-               _Package = new ComputationPackage(min, max, Width, Height, PartialWidth, PartialHeight, Limit, Cols, Rows, Threads);
+               _Package = new ComputationPackage(min, max, Width, Height, PartialWidth, PartialHeight, (uint)Palette.Length - 1, Cols, Rows, Threads);
             }
         }
 
@@ -219,6 +247,11 @@ namespace MB.Core
         private static string GetProjectFile()
         {
             return Path.Combine(GetBasePath(), "project.json");
+        }
+
+        private static string GetPaletteBinPath()
+        {
+            return Path.Combine(GetBasePath(), "palette.bin");
         }
 
         private static void EnsureBasePath()

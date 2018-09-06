@@ -26,8 +26,6 @@ namespace MB.WPF
         private const int _HEIGHT = 1080;
         private const int _PACKAGES_PER_FRAME = 2000;
 
-        private SolidColorBrush[] _Brushes;
-
         private Complex _BoundsMin = new Complex("-2", "-1.5");
         private Complex _BoundsMax = new Complex("0.5", "1.5");
 
@@ -41,14 +39,13 @@ namespace MB.WPF
         {
             InitializeComponent();
 
-            _Brushes = ColorInterpolator.CreatePalette(100, Colors.Black, Colors.Black, 10000).Select(c => new SolidColorBrush(c)).ToArray();
-            _Proj = Project.Initialize(_WIDTH, _HEIGHT, (uint)_Brushes.Length - 1, _PACKAGES_PER_FRAME, _BoundsMin, _BoundsMax);
+            _Proj = Project.Initialize(_WIDTH, _HEIGHT, _PACKAGES_PER_FRAME, _BoundsMin, _BoundsMax);
             _Proj.FrameFinished += _Project_FrameFinished;
             _Proj.FrameChanged += _Project_FrameChanged;
 
-            MouseLeftButtonDown += MainWindow_MouseLeftButtonDown;
-            MouseLeftButtonUp += MainWindow_MouseLeftButtonUp;
-            MouseMove += MainWindow_MouseMove;
+            _Cnvs.MouseLeftButtonDown += MainWindow_MouseLeftButtonDown;
+            _Cnvs.MouseLeftButtonUp += MainWindow_MouseLeftButtonUp;
+            _Cnvs.MouseMove += MainWindow_MouseMove;
 
             _Rect.Opacity = 0.4;
             _Rect.Fill = Brushes.Red;
@@ -73,7 +70,7 @@ namespace MB.WPF
 
         private void _Project_FrameChanged(object sender, EventArgs e)
         {
-            _Out.ImageSource = BitmapHelper.Create(_Proj.Width, _Proj.Height, _Proj.CurrentFrame, _Brushes, Brushes.WhiteSmoke);
+            _Out.ImageSource = BitmapHelper.Create(_Proj.Width, _Proj.Height, _Proj.CurrentFrame, _Proj.Palette, System.Drawing.Color.WhiteSmoke);
         }
 
         private void MainWindow_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -81,18 +78,23 @@ namespace MB.WPF
             if (_Start == null)
                 return;
 
-            Point current = e.GetPosition(_Cnvs);
+            if (MessageBox.Show("Zoom?", "Zoom request", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+            {
+                Point current = e.GetPosition(_Cnvs);
 
-            double widthRatio = _WIDTH / _Cnvs.ActualWidth;
-            double heightRatio = _HEIGHT / _Cnvs.ActualHeight;
+                _Out.ImageSource = null;
 
-            // here must call project create frame
-            int zoomWidth = (int)(widthRatio * (current.X - _Start.Value.X));
-            int zoomHeight = (int)(heightRatio * (current.Y - _Start.Value.Y));
-            int offsetX = (int)(widthRatio * _Start.Value.X);
-            int offsetY = (int)(heightRatio * _Start.Value.Y);
+                double widthRatio = _WIDTH / _Cnvs.ActualWidth;
+                double heightRatio = _HEIGHT / _Cnvs.ActualHeight;
 
-            _Proj.SetZoomRequest(zoomWidth, zoomHeight, offsetX, offsetY);
+                // here must call project create frame
+                int zoomWidth = (int)(widthRatio * (current.X - _Start.Value.X));
+                int zoomHeight = (int)(heightRatio * (current.Y - _Start.Value.Y));
+                int offsetX = (int)(widthRatio * _Start.Value.X);
+                int offsetY = (int)(heightRatio * _Start.Value.Y);
+
+                _Proj.SetZoomRequest(zoomWidth, zoomHeight, offsetX, offsetY);
+            }
 
             _Cnvs.Children.Clear();
             _Start = null;

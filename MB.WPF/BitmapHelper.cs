@@ -1,11 +1,8 @@
 ﻿using MB.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Color = System.Drawing.Color;
 
 namespace MB.WPF
 {
@@ -13,7 +10,7 @@ namespace MB.WPF
     public class BitmapHelper
     {
 
-        public static BitmapSource Create(int width, int height, int[,] iframe, SolidColorBrush[] palette, SolidColorBrush notset)
+        public static BitmapSource Create(int width, int height, int[,] iframe, Color[] palette, Color notset)
         {
             byte[] raw = new byte[width * height * 3];
 
@@ -26,13 +23,13 @@ namespace MB.WPF
                     i = y * width * 3 + x * 3;
                     j = iframe[x, y];
 
-                    SolidColorBrush b = j == FrameHelper.DEFAULT
+                    Color color = j == FrameHelper.DEFAULT
                         ? notset
                         : palette[j];
 
-                    raw[i + 0] = b.Color.B;
-                    raw[i + 1] = b.Color.G;
-                    raw[i + 2] = b.Color.R;
+                    raw[i + 0] = color.B;
+                    raw[i + 1] = color.G;
+                    raw[i + 2] = color.R;
                 }
             }
 
