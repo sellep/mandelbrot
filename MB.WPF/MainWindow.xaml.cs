@@ -78,10 +78,10 @@ namespace MB.WPF
             if (_Start == null)
                 return;
 
+            Point current = e.GetPosition(_Cnvs);
+
             if (MessageBox.Show("Zoom?", "Zoom request", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
             {
-                Point current = e.GetPosition(_Cnvs);
-
                 _Out.ImageSource = null;
 
                 double widthRatio = _WIDTH / _Cnvs.ActualWidth;
