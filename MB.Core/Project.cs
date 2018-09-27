@@ -24,22 +24,22 @@ namespace MB.Core
         public event EventHandler FrameChanged;
         public event EventHandler<int[,]> FrameFinished;
 
-        public static Project Initialize(int width, int height, int threads, Complex min, Complex max)
+        public static Project New(string name, bool auto, int width, int height, int threads, Complex min, Complex max)
         {
-            EnsureBasePath();
+            string path = GetProjectBasePath(name);
 
-            if (File.Exists(GetProjectFile()))
-                return Load();
+            if (Directory.Exists(path))
+                throw new Exception("Project already exists");
 
-            return New(width, height, threads, min, max);
-        }
+            Directory.CreateDirectory(path);
+            Directory.CreateDirectory(Path.Combine(path, "_frames"));
 
-        private static Project New(int width, int height, int threads, Complex min, Complex max)
-        {
             FrameHelper.MakeGrid(width, height, threads, out int cols, out int rows);
 
             Project proj = new Project()
             {
+                Name = name,
+                Auto = auto,
                 Width = width,
                 Height = height,
                 Threads = threads,
@@ -50,7 +50,7 @@ namespace MB.Core
             };
 
             string json = JsonConvert.SerializeObject(proj);
-            File.WriteAllText(GetProjectFile(), json);
+            File.WriteAllText(GetProjectFile(name), json);
 
             proj.Palette = InitializePalette();
 
@@ -59,15 +59,17 @@ namespace MB.Core
             return proj;
         }
 
-        private static Project Load()
+        public static Project Load(string name)
         {
-            string json = File.ReadAllText(GetProjectFile());
+            string json = File.ReadAllText(GetProjectFile(name));
             Project proj = JsonConvert.DeserializeObject<Project>(json);
+
+            proj.Name = name;
 
             proj.Palette = InitializePalette();
 
             int latestFrame = Directory
-                .GetDirectories(GetBasePath())
+                .GetDirectories(GetProjectBasePath(name))
                 .Select(f =>
                 {
                     if (int.TryParse(Path.GetFileName(f), out int val))
@@ -76,7 +78,7 @@ namespace MB.Core
                 })
                 .Max();
 
-            string framePath = Path.Combine(GetBasePath(), latestFrame.ToString());
+            string framePath = Path.Combine(GetProjectBasePath(name), latestFrame.ToString());
 
             Tuple<Complex, Complex> bounds = JsonConvert.DeserializeObject<Tuple<Complex, Complex>>(File.ReadAllText(Path.Combine(framePath, "_bounds.json")));
 
@@ -131,6 +133,12 @@ namespace MB.Core
 
             return palette;
         }
+
+        [JsonIgnore]
+        public string Name { get; private set; }
+
+        [JsonProperty]
+        public bool Auto { get; private set; }
 
         [JsonProperty]
         public int Width { get; private set; }
@@ -192,7 +200,7 @@ namespace MB.Core
 
                 byte[] buffer = new byte[iframe.Length * sizeof(int)];
                 Buffer.BlockCopy(iframe, 0, buffer, 0, buffer.Length);
-                File.WriteAllBytes(GetPartialFramePath(_FrameCount, request), buffer);
+                File.WriteAllBytes(GetPartialFramePath(Name, _FrameCount, request), buffer);
             }
 
             if (_Package.IsDone)
@@ -221,7 +229,7 @@ namespace MB.Core
             {
                 _FrameCount++;
 
-                string path = Path.Combine(GetBasePath(), _FrameCount.ToString());
+                string path = Path.Combine(GetProjectBasePath(Name), _FrameCount.ToString());
 
                 Directory.CreateDirectory(path);
 
@@ -234,19 +242,24 @@ namespace MB.Core
             }
         }
 
-        public string GetCurrentBitmapPath()
+        public string GetCurrentBitmapPath(string name)
         {
-            return Path.Combine(GetBasePath(), _FrameCount.ToString(), "_frame.png");
+            return Path.Combine(GetProjectBasePath(name), "_frames", $"{_FrameCount}.png");
         }
 
-        private static string GetPartialFramePath(int frameCount, ComputationRequest request)
+        private static string GetPartialFramePath(string name, int frameCount, ComputationRequest request)
         {
-            return Path.Combine(GetBasePath(), frameCount.ToString(), $"{request.Col}.{request.Row}.dat");
+            return Path.Combine(GetProjectBasePath(name), frameCount.ToString(), $"{request.Col}.{request.Row}.dat");
         }
 
-        private static string GetProjectFile()
+        private static string GetProjectFile(string name)
         {
-            return Path.Combine(GetBasePath(), "project.json");
+            return Path.Combine(GetProjectBasePath(name), "project.json");
+        }
+
+        private static string GetProjectBasePath(string name)
+        {
+            return Path.Combine(GetBasePath(), name);
         }
 
         private static string GetPaletteBinPath()

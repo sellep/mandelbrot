@@ -1,17 +1,28 @@
 CC=@gcc
-CFLAGS=-Wall -Werror -fpic -v
+CFLAGS=-fpic -v
 LDFLAGS=-lmpfr -lgmp
 
-all: clean
-	@mkdir -p mbmpfr/obj/ mbmpfr/lib/ 
-	$(CC) -c $(CFLAGS) -o mbmpfr/obj/mbmpfr.o mbmpfr/mbmpfr.c
-	$(CC) -shared -o mbmpfr/lib/libmbmpfr.so mbmpfr/obj/mbmpfr.o
+OBJS=compute.o crop.o zoom.o test.o
+
+all: clean $(OBJS)
+	$(CC) -shared -o mbmpfr/lib/libmbmpfr.so $(addprefix mbmpfr/obj/, $(OBJS))
+	$(CC) -o mbmpfr/bin/test $(addprefix mbmpfr/obj/, $(OBJS)) $(LDFLAGS)
+
+debug: CFLAGS += -DDEBUG -g
+debug: all
 
 clean:
-	@rm -rf mbmpfr/obj/* mbmpfr/lib/*
+	@mkdir -p mbmpfr/obj mbmpfr/lib mbmpfr/bin
+	@rm -rf mbmpfr/obj/* mbmpfr/lib/* mbmpfr/bin/*
 
 install:
 	@cp mbmpfr/lib/libmbmpfr.so /usr/lib/
 
 uninstall:
 	@rm -f /usr/lib/libmbmpfr.so
+
+test:
+	mbmpfr/bin/./test
+
+%.o : mbmpfr/%.c
+	$(CC) -c $(CFLAGS) -o mbmpfr/obj/$@ $<

@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MB.Core;
+using WpfApp1;
 
 namespace MB.WPF
 {
@@ -35,11 +36,14 @@ namespace MB.WPF
         private Project _Proj = null;
         private ComputationProvider _Provider;
 
+        private string _CurrentProject = "probe";
+
         public MainWindow()
         {
             InitializeComponent();
 
-            _Proj = Project.Initialize(_WIDTH, _HEIGHT, _PACKAGES_PER_FRAME, _BoundsMin, _BoundsMax);
+            //_Proj = Project.Initialize(_WIDTH, _HEIGHT, _PACKAGES_PER_FRAME, _BoundsMin, _BoundsMax);
+            _Proj = Project.Load(_CurrentProject);
             _Proj.FrameFinished += _Project_FrameFinished;
             _Proj.FrameChanged += _Project_FrameChanged;
 
@@ -62,7 +66,7 @@ namespace MB.WPF
             PngBitmapEncoder encoder = new PngBitmapEncoder();
             encoder.Frames.Add(BitmapFrame.Create((BitmapSource)_Out.ImageSource));
 
-            using (Stream s = File.OpenWrite(_Proj.GetCurrentBitmapPath()))
+            using (Stream s = File.OpenWrite(_Proj.GetCurrentBitmapPath(_CurrentProject)))
             {
                 encoder.Save(s);
             }
@@ -129,6 +133,20 @@ namespace MB.WPF
             Canvas.SetTop(_Rect, _Start.Value.Y);
 
             _Cnvs.Children.Add(_Rect);
+        }
+
+        private void _HostsItem_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void _NewPaletteItem_Click(object sender, RoutedEventArgs e)
+        {
+            NewPaletteWindow dialog = new NewPaletteWindow();
+
+            if (!dialog.ShowDialog().GetValueOrDefault())
+                return;
+
         }
     }
 }

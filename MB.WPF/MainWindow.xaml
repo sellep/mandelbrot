@@ -6,11 +6,22 @@
         xmlns:local="clr-namespace:MB.WPF"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Canvas x:Name="_Cnvs"
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Palette">
+                <MenuItem x:Name="_NewPaletteItem" Header="New" Click="_NewPaletteItem_Click" />
+            </MenuItem>
+            <MenuItem Header="View">
+                <MenuItem x:Name="_HostsItem" Header="Hosts"
+                          IsCheckable="true" Checked="_HostsItem_Checked" Unchecked="_HostsItem_Checked"/>
+            </MenuItem>
+        </Menu>
+        <Canvas x:Name="_Cnvs"
             RenderOptions.BitmapScalingMode="HighQuality"
             RenderOptions.EdgeMode="Aliased">
-        <Canvas.Background>
-            <ImageBrush x:Name="_Out"/>
-        </Canvas.Background>
-    </Canvas>
+            <Canvas.Background>
+                <ImageBrush x:Name="_Out"/>
+            </Canvas.Background>
+        </Canvas>
+    </DockPanel>
 </Window>
