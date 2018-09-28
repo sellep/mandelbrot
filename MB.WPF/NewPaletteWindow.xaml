@@ -46,6 +46,6 @@
         </Canvas>
 
         <Button Grid.Column="2" Grid.Row="7" Content="Save" x:Name="_Save" />
-        <Button Grid.Column="3" Grid.Row="7" Content="Cancel" X:Name="_Cancel" />
+        <Button Grid.Column="3" Grid.Row="7" Content="Cancel" x:Name="_Cancel" />
     </Grid>
 </Window>

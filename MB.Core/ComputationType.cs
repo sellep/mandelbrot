@@ -8,6 +8,7 @@ namespace MB.Core
     public enum ComputationType
     {
         Zoom,
+        Crop,
         Render
     }
 }

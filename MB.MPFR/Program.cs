@@ -16,8 +16,8 @@ namespace Temp
             public uint y;
         }
 
-        [DllImport("libmbmpfr", EntryPoint = "zoom")]
-        private static extern void zoom(StringBuilder str, uint str_length, string r_min, string i_min, string r_max, string i_max, dim size, dim zoom_size, dim offset);
+        [DllImport("libmbmpfr", EntryPoint = "crop")]
+        private static extern void crop(StringBuilder str, uint str_length, string r_min, string i_min, string r_max, string i_max, dim size, dim zoom_size, dim offset);
 
         [DllImport("libmbmpfr", EntryPoint = "compute")]
         private static extern void compute(IntPtr iframe, string r_min, string i_min, string r_max, string i_max, dim size, dim partial_size, dim idx, uint limit);
@@ -27,16 +27,16 @@ namespace Temp
             //ComputationRequest req = new ComputationRequest(
             //    new Complex("-2", "-1.5"),
             //    new Complex("1", "1.5"),
-            //    2000,
-            //    1000,
-            //    300,
+            //    400,
             //    200,
-            //    5,
-            //    1300,
-            //    500,
-            //    ComputationType.Zoom);
+            //    120,
+            //    60,
+            //    10,
+            //    160,
+            //    20,
+            //    ComputationType.Crop);
 
-            //string[] bounds = InvokeZoom(req);
+            //string[] bounds = InvokeCrop(req);
 
             //Console.WriteLine(bounds[0]);
             //Console.WriteLine(bounds[1]);
@@ -163,17 +163,17 @@ namespace Temp
                 else
                 {
                     DateTime begin = DateTime.Now;
-                    string[] bounds = InvokeZoom(request);
+                    string[] bounds = InvokeCrop(request);
                     DateTime end = DateTime.Now;
 
-                    FinishZoom(address, request, bounds);
+                    FinishCrop(address, request, bounds);
 
                     Console.WriteLine($" {(end - begin).TotalSeconds}s");
                 }
             }
         }
 
-        private static string[] InvokeZoom(ComputationRequest request)
+        private static string[] InvokeCrop(ComputationRequest request)
         {
             dim size = new dim
             {
@@ -194,7 +194,7 @@ namespace Temp
             };
 
             StringBuilder sb = new StringBuilder(4 * (int)request.Limit);
-            zoom(sb, request.Limit, request.RMin, request.IMin, request.RMax, request.IMax, size, zoom_size, offset);
+            crop(sb, request.Limit, request.RMin, request.IMin, request.RMax, request.IMax, size, zoom_size, offset);
 
             string str = sb.ToString();
 
@@ -252,11 +252,11 @@ namespace Temp
             }
         }
 
-        private static void FinishZoom(Uri address, ComputationRequest request, string[] bounds)
+        private static void FinishCrop(Uri address, ComputationRequest request, string[] bounds)
         {
             using (Proxy proxy = new Proxy(address))
             {
-                proxy.FinishZoom(request.Id, bounds);
+                proxy.FinishCrop(request.Id, bounds);
             }
         }
 

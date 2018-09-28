@@ -19,7 +19,7 @@ namespace MB.Core
         private int _FrameCount = -1;
 
         private ComputationPackage _Package = null;
-        private ComputationRequest _ZoomRequest = null;
+        private ComputationRequest _CropRequest = null;
 
         public event EventHandler FrameChanged;
         public event EventHandler<int[,]> FrameFinished;
@@ -171,10 +171,10 @@ namespace MB.Core
         {
             lock (_Sync)
             {
-                if (_ZoomRequest != null)
+                if (_CropRequest != null)
                 {
-                    ComputationRequest tmp = _ZoomRequest;
-                    _ZoomRequest = null;
+                    ComputationRequest tmp = _CropRequest;
+                    _CropRequest = null;
                     return tmp;
                 }
 
@@ -213,11 +213,11 @@ namespace MB.Core
             }
         }
 
-        public void SetZoomRequest(int zoomWidth, int zoomHeight, int offsetX, int offsetY)
+        public void SetCropRequest(int zoomWidth, int zoomHeight, int offsetX, int offsetY)
         {
             lock (_Sync)
             {
-                _ZoomRequest = new ComputationRequest(_Package.Min, _Package.Max, Width, Height, zoomWidth, zoomHeight, _NUMBER_LENGTH, offsetX, offsetY, ComputationType.Zoom);
+                _CropRequest = new ComputationRequest(_Package.Min, _Package.Max, Width, Height, zoomWidth, zoomHeight, _NUMBER_LENGTH, offsetX, offsetY, ComputationType.Crop);
 
                 _Package = null;
             }

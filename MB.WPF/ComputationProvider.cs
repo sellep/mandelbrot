@@ -47,7 +47,7 @@ namespace MB.WPF
             _Proj.Finish(id, iframe);
         }
 
-        public void FinishZoom(Guid id, string[] bounds)
+        public void FinishCrop(Guid id, string[] bounds)
         {
             Complex min = new Complex(bounds[0], bounds[1]);
             Complex max = new Complex(bounds[2], bounds[3]);

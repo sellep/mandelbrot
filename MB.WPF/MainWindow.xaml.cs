@@ -23,8 +23,6 @@ namespace MB.WPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const int _WIDTH = 1920;
-        private const int _HEIGHT = 1080;
         private const int _PACKAGES_PER_FRAME = 2000;
 
         private Complex _BoundsMin = new Complex("-2", "-1.5");
@@ -36,7 +34,7 @@ namespace MB.WPF
         private Project _Proj = null;
         private ComputationProvider _Provider;
 
-        private string _CurrentProject = "probe";
+        private string _CurrentProject = "crop_test";
 
         public MainWindow()
         {
@@ -88,8 +86,8 @@ namespace MB.WPF
             {
                 _Out.ImageSource = null;
 
-                double widthRatio = _WIDTH / _Cnvs.ActualWidth;
-                double heightRatio = _HEIGHT / _Cnvs.ActualHeight;
+                double widthRatio = _Proj.Width / _Cnvs.ActualWidth;
+                double heightRatio = _Proj.Height / _Cnvs.ActualHeight;
 
                 // here must call project create frame
                 int zoomWidth = (int)(widthRatio * (current.X - _Start.Value.X));
@@ -97,7 +95,7 @@ namespace MB.WPF
                 int offsetX = (int)(widthRatio * _Start.Value.X);
                 int offsetY = (int)(heightRatio * _Start.Value.Y);
 
-                _Proj.SetZoomRequest(zoomWidth, zoomHeight, offsetX, offsetY);
+                _Proj.SetCropRequest(zoomWidth, zoomHeight, offsetX, offsetY);
             }
 
             _Cnvs.Children.Clear();

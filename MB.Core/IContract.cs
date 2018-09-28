@@ -17,6 +17,6 @@ namespace MB.Core
         void Finish(Guid id, int[] iframe);
 
         [OperationContract(IsOneWay = true)]
-        void FinishZoom(Guid id, string[] bounds);
+        void FinishCrop(Guid id, string[] bounds);
     }
 }

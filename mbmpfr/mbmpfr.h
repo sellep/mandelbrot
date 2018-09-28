@@ -29,6 +29,17 @@ extern void zoom(
 	char const * const i_point_str,
 	const double percent);
 
+extern void crop(
+	char * const str,
+	const uint str_length,
+	char const * const r_min_str,
+	char const * const i_min_str,
+	char const * const r_max_str,
+	char const * const i_max_str,
+	const dim size,
+	const dim new_width,
+	const dim offset);
+
 static inline void to_str(char * const str, const uint size, mpfr_t op)
 {
 	char *buf;
